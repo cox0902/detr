@@ -2,8 +2,6 @@
 import torch.utils.data
 import torchvision
 
-from .coco import build as build_coco
-
 
 def get_coco_api_from_dataset(dataset):
     for _ in range(10):
@@ -16,7 +14,11 @@ def get_coco_api_from_dataset(dataset):
 
 
 def build_dataset(image_set, args):
+    if args.dataset_file == 'code':
+        from .code import build as build_code
+        return build_code(image_set, args)
     if args.dataset_file == 'coco':
+        from .coco import build as build_coco
         return build_coco(image_set, args)
     if args.dataset_file == 'coco_panoptic':
         # to avoid making panopticapi required for coco
