@@ -4,6 +4,7 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 import torchvision.transforms.v2 as T
+from util.box_ops import box_xyxy_to_cxcywh
 
 
 class ImageCodeDataset(Dataset):
@@ -50,6 +51,8 @@ class ImageCodeDataset(Dataset):
         return i
     
     def __getitem__(self, index: int) -> Dict:
+        w, h = 256, 256
+
         img_idx = self.__idx(index)
         # image = torch.from_numpy(self.images[img_idx])
         image = self.images[img_idx]
@@ -75,18 +78,22 @@ class ImageCodeDataset(Dataset):
                 continue
 
             assert len(loc[0]) == 1
-            x1, y1, x2, y2 = self.rects[loc[0]][0]
-            boxes.append([x1, y1, x2 - x1, y2 - y1])
+            rect = self.rects[loc[0]][0]
+            boxes.append(rect)
 
             category_id = piv - 8
             labels.append(category_id)
+
+        boxes = torch.as_tensor(boxes, dtype=torch.float32)
+        boxes = box_xyxy_to_cxcywh(boxes)
+        boxes = boxes / torch.tensor([w, h, w, h], dtype=torch.float32)
 
         return image, {
             "boxes": torch.as_tensor(boxes, dtype=torch.float32),
             "labels": torch.as_tensor(labels, dtype=torch.int64),
             "image_id": torch.as_tensor([img_idx]),
-            "orig_size": torch.as_tensor([256, 256]),
-            "size": torch.as_tensor([256, 256])
+            "orig_size": torch.as_tensor([w, h]),
+            "size": torch.as_tensor([w, h])
         }
 
 
