@@ -56,9 +56,9 @@ class ImageCodeDataset(Dataset):
         img_idx = self.__idx(index)
         # image = torch.from_numpy(self.images[img_idx])
         image = self.images[img_idx]
-        # if self.transform is not None:
-        image = torch.from_numpy(image)
-        image = self.transform(image)
+        if self.transform is not None:
+            image = torch.from_numpy(image)
+            image = self.transform(image)
 
         boxes, labels = [], []
 
@@ -70,8 +70,6 @@ class ImageCodeDataset(Dataset):
             assert pid != -1
 
             logical = ((self.labels[:, 0] == img_idx) & (self.labels[:, 1] == pid))
-            if self.num_classes in [1, 33]:
-                logical = (logical & (self.labels[:, 4] == 1))
 
             loc = np.where(logical)
             if len(loc[0]) == 0:
