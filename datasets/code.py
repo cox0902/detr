@@ -82,7 +82,7 @@ class ImageCodeDataset(Dataset):
             category_id = piv - 8
             labels.append(category_id)
 
-        boxes = torch.as_tensor(boxes, dtype=torch.float32)
+        boxes = torch.as_tensor(np.array(boxes), dtype=torch.float32)
         boxes = box_xyxy_to_cxcywh(boxes)
         boxes = boxes / torch.tensor([w, h, w, h], dtype=torch.float32)
 
